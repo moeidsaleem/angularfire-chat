@@ -1,0 +1,97 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button (click)="drawer.toggle()">
+    <mat-icon matSuffix>menu</mat-icon>
+  </button>
+  <span>{{ title }}</span>
+  <button mat-icon-button (click)="open(list)" class="end">
+    <mat-icon matSuffix>person_add</mat-icon>
+  </button>
+  <button mat-icon-button (click)="logoutModal(logoutContent)" class="end">
+    <mat-icon matSuffix>exit_to_app</mat-icon>
+  </button>
+</mat-toolbar>
+
+<mat-drawer-container class="example-container" autosize>
+  <mat-drawer #drawer class="example-sidenav" mode="side" opened>
+    <mat-form-field>
+      <input matInput placeholder="Search Conversations" value="" />
+    </mat-form-field>
+
+    <mat-list cdk-virtual-scroll-viewport itemSize="50" *ngIf="api.currentUser && api.currentUser.conversations">
+      <mat-list-item *ngFor="let x of api.currentUser.conversations">
+        <mat-icon matListIcon>folder</mat-icon>
+        <h3 matLine class="text-primary">{{x?.name}}</h3>
+        <p matLine>
+          <span class="small text-muted"> New Message </span><br />
+          <span class="demo-2 text-muted small"> {{getDate(x?.timestamp)}}</span>
+        </p>
+      </mat-list-item>
+   
+    </mat-list>
+  </mat-drawer>
+
+  <div class="example-sidenav-content">
+    <div class="mesgs"  cdk-virtual-scroll-viewport itemSize="50">
+      <div class="msg_history" *ngIf="messages">
+        <div *ngFor="let x of messages">
+            <div class="incoming_msg">
+                <div class="incoming_msg_img">
+                  <img
+                    src="https://ptetutorials.com/images/user-profile.png"
+                    alt="sunil"
+                  />
+                </div>
+                <div class="received_msg">
+                  <div class="received_withd_msg">
+                    <p>Test which is a new approach to have all solutions</p>
+                    <span class="time_date"> 11:01 AM | June 9</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="outgoing_msg">
+                  <div class="sent_msg">
+                    <p>Test which is a new approach to have all solutions</p>
+                    <span class="time_date"> 11:01 AM | June 9</span>
+                  </div>
+                </div>
+
+        </div>
+     
+          
+      
+  
+      </div>
+      <div class="type_msg">
+        <div class="input_msg_write">
+          <input mat-input type="text" placeholder="Type a message" [(ngModel)]="message" />
+          <button class="msg_send_btn" type="button">
+            <mat-icon matSuffix (click)="sendMessage()">send</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</mat-drawer-container>
+
+
+
+
+
+
+<!-- user-lsit -->
+<ng-template #list>
+  <mat-list role="list" cdk-virtual-scroll-viewport itemSize="10">
+    <mat-list-item role="listitem" *ngFor="let x of users" (click)="selectUser(x)">
+      {{x?.name}}
+    </mat-list-item>
+  </mat-list>
+</ng-template>
+
+
+<ng-template #logoutContent>
+  Are you sure you want to Log out? <br> <br>
+  <button mat-button  mat-raised-button color="warn" (click)="logout()"> LOGOUT </button>
+  
+  <button mat-button (click)="closeModal()"> cancel </button>
+</ng-template>

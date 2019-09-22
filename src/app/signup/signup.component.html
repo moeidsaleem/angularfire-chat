@@ -1,0 +1,59 @@
+<mat-toolbar color="primary">
+    <mat-toolbar-row>
+      <span>Chat App - <small>Register</small> </span>
+    </mat-toolbar-row>
+  
+  </mat-toolbar>
+  
+<div class="container" style="margin-top:10px">
+        <div class="row">
+            <div class="col-md-12 text-center">
+              <h3 class="display-4"> Signup  </h3> 
+            </div>
+        </div>
+        <div class="row text-center">
+            <div class="col-md-12">
+                    <form class="example-form">
+                        <mat-form-field class="example-full-width">
+                            <input matInput placeholder="Full Name" [formControl]="nameFormControl">
+                            <mat-error *ngIf="nameFormControl.hasError('minlength') && !nameFormControl.hasError('required')">
+                              Name must be minimum 3 characters 
+                            </mat-error>
+                            <mat-error *ngIf="nameFormControl.hasError('required')">
+                              Name is <strong>required</strong>
+                            </mat-error>
+                          </mat-form-field>
+                          <br><br>
+                            <mat-form-field class="example-full-width">
+                              <input matInput placeholder="Email" [formControl]="emailFormControl">
+                              <mat-error *ngIf="emailFormControl.hasError('email') && !emailFormControl.hasError('required')">
+                                Please enter a valid email address
+                              </mat-error>
+                              <mat-error *ngIf="emailFormControl.hasError('required')">
+                                Email is <strong>required</strong>
+                              </mat-error>
+                            </mat-form-field>
+                            <br> <br>
+                            <mat-form-field class="example-full-width">
+                                    <input matInput placeholder="Password" type="password" [formControl]="passwordFormControl">
+                                    <mat-error *ngIf="passwordFormControl.hasError('minlength') && !passwordFormControl.hasError('required')">
+                                      Password must be minimum 6 characters.
+                                    </mat-error>
+                                    <mat-error *ngIf="passwordFormControl.hasError('required')">
+                                      Password is <strong>required</strong>
+                                    </mat-error>
+                                  </mat-form-field>
+                                  <br> <br> 
+                                  <button mat-raised-button color="primary" (click)="register()">Register</button>
+                          </form>   
+                          
+            </div>
+            <div class="col-md-12 text-center clearfix" style="margin-top: 20px">
+              <p> Already registered? <button mat-raised-button color="accent" routerLink="/login">Login </button></p>
+            </div>
+         
+        </div>
+     
+    </div>
+    
+    
