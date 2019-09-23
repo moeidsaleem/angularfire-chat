@@ -56,11 +56,13 @@ export class SignupComponent implements OnInit {
 
     this.auth.signup(this.emailFormControl.value, this.passwordFormControl.value).then(data=>{
       console.log('user', data.user);
+      
       this.api.createUser(data.user.uid, {
         name: this.nameFormControl.value, 
         email: this.emailFormControl.value,
         uid: data.user.uid
       }).then(()=>{
+        localStorage.setItem('uid', data.user.uid)
         this.router.navigate(['/dashboard']).then(()=>{
           setTimeout(()=>{
             this.helper.openSnackBar('Welcome to Chat App', 'Close');

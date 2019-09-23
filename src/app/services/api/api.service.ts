@@ -2,6 +2,34 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AuthService } from '../auth/auth.service';
 import { map, take } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+
+export interface Chat{
+  chatId:any,
+  messages: Array<Message>
+}
+
+export interface Message{
+  senderId:string,
+  senderName:string,
+  content:string, 
+  timestamp?: Date
+}
+export interface UserConvo{
+  uid:string,
+  name:string,
+  chatId:string,
+  timestamp?:Date
+}
+export interface User{
+  uid:string,
+  name:string,
+  email:string,   
+  conversations?:Array<any>
+}
+
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -11,10 +39,16 @@ export class ApiService {
   constructor(private afs: AngularFirestore) { }
 
 
-  public currentUser
-  public chat;
+  private temp:any;
+  public currentUser:User;
+  public otherUser;
+  public messages =[];
+  public chat :Chat ={
+    chatId:'',
+    messages:[]
+   }
   conversationId;
-  otherUser;
+
 
 
   createUser(uid, data) {
@@ -34,7 +68,8 @@ export class ApiService {
   setCurrentUser(uid) {
     localStorage.setItem('uid', uid)
     this.afs.doc('users/' + uid).valueChanges().subscribe(resp => {
-      this.currentUser = resp;
+      this.temp = resp;
+      this.currentUser =this.temp;
     }, err => { console.log('error', err) })
   }
 
@@ -58,6 +93,7 @@ export class ApiService {
       if(!this.currentUser.conversations){
         this.currentUser.conversations = []
       }
+      console.log('finding....')
     let find =this.currentUser.conversations.find(item => item.uid == user.uid);
     if (find) {
       //means that already have talked to the user before..
@@ -68,6 +104,7 @@ export class ApiService {
 
 
     } else if (!find) {
+      console.log('not-found')
       //first time talking to the user 
       let chatId = this.afs.createId();
       this.afs.doc('conversations/' + chatId).set({
@@ -112,14 +149,26 @@ export class ApiService {
   }
 
 
+  
+
 
   getChat(chatId){
    return this.afs.collection('conversations', ref=> ref.where('chatId','==',chatId)).valueChanges()
   }
 
 
-sendMessageg(chatId, messages){
-  return this.afs.doc('conversations/'+ chatId).update({messages:messages})
+sendMessageg(message){
+  console.log('msg', message);
+  console.log('chat', this.chat);
+  if(this.chat.chatId){
+    console.log('chat is selected');
+    this.chat.messages.push(message);
+    console.log('send-chat', this.chat)
+    return this.afs.doc('conversations/'+ this.chat.chatId).update(this.chat)
+
+  }else{
+    console.log('Please select a Chat');
+  }
 }
 
 
@@ -139,6 +188,92 @@ sendMessageg(chatId, messages){
 
   }
 
+
+
+
+
+
+  /* FINAL CODE */
+
+
+  refreshCurrentUser(){
+    this.afs.collection('users/'+ localStorage.getItem('uid')).valueChanges().subscribe(data=>{
+         this.temp = data;
+         this.currentUser = this.temp;
+    })
+  }
+
+  addConvoToUser(uid, user:User){
+    let convo= [];
+    if(!user.uid){
+      console.log('addconvo-no user id found', user)
+      return
+    }
+    let c ={
+      name: user.name,
+      uid: user.uid,
+      chatId: this.chat.chatId
+    }
+
+
+    // user.conversations.push(c)
+if(!user.conversations || user.conversations.length <=0){
+  user.conversations =[];
+}
+
+user.conversations.push(c);
+
+return this.afs.doc('users/'+uid).update({conversations:user.conversations})
+  }
+
+
+  addNewChat(){
+    const chatId =this.afs.createId();
+
+    console.log('chatID----', chatId)
+      return this.afs.doc('conversations/'+ chatId).set({
+        chatId: chatId,
+        messages:[]
+      }).then(()=> {
+        this.chat = {
+          chatId:chatId,
+           messages:[]
+        }
+      })
+ 
+  }
+
+  pushNewMessage(list){
+    console.log('this-chat-x-x-x-x-x-x-', this.chat)
+    return this.afs.doc('conversations/'+this.chat.chatId).update(
+      {messages: list}
+    )
+  }
+
+
+  updateChat(chat){
+    return this.afs.doc('conversations/' + chat.chatId).update(chat)
+  }
+
+  getCurrentChat(chatId){
+    console.log('get')
+    return this.afs.doc('conversations/'+chatId).valueChanges()
+  }
+
+
+  clearData(){
+    localStorage.clear();
+    this.messages =[]
+    this.currentUser = {
+      conversations:[],
+      name:'',
+      email:'',
+      uid:''
+    }
+    this.chat = null;
+    this.temp = null;
+ 
+  }
 
 
 }

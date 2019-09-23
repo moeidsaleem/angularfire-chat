@@ -2,7 +2,7 @@
   <button mat-icon-button (click)="drawer.toggle()">
     <mat-icon matSuffix>menu</mat-icon>
   </button>
-  <span>{{ title }}</span>
+  <span>{{ title }} + {{ api.currentUser?.name }}</span>
   <button mat-icon-button (click)="open(list)" class="end">
     <mat-icon matSuffix>person_add</mat-icon>
   </button>
@@ -18,7 +18,7 @@
     </mat-form-field>
 
     <mat-list cdk-virtual-scroll-viewport itemSize="50" *ngIf="api.currentUser && api.currentUser.conversations">
-      <mat-list-item *ngFor="let x of api.currentUser.conversations">
+      <mat-list-item *ngFor="let x of api.currentUser.conversations" (click)="selectAUser(x)">
         <mat-icon matListIcon>folder</mat-icon>
         <h3 matLine class="text-primary">{{x?.name}}</h3>
         <p matLine>
@@ -32,9 +32,9 @@
 
   <div class="example-sidenav-content">
     <div class="mesgs"  cdk-virtual-scroll-viewport itemSize="50">
-      <div class="msg_history" *ngIf="messages">
+      <div class="msg_history" *ngIf="showMessages">
         <div *ngFor="let x of messages">
-            <div class="incoming_msg">
+            <div class="incoming_msg" *ngIf="x.senderId !== api.currentUser.uid">
                 <div class="incoming_msg_img">
                   <img
                     src="https://ptetutorials.com/images/user-profile.png"
@@ -43,16 +43,16 @@
                 </div>
                 <div class="received_msg">
                   <div class="received_withd_msg">
-                    <p>Test which is a new approach to have all solutions</p>
-                    <span class="time_date"> 11:01 AM | June 9</span>
+                    <p>{{x.content}}</p>
+                    <span class="time_date"> {{getDate(x.time)}}</span>
                   </div>
                 </div>
               </div>
 
-              <div class="outgoing_msg">
+              <div class="outgoing_msg"  *ngIf="x.senderId == api.currentUser.uid">
                   <div class="sent_msg">
-                    <p>Test which is a new approach to have all solutions</p>
-                    <span class="time_date"> 11:01 AM | June 9</span>
+                    <p>{{x.content}}</p>
+                    <span class="time_date"> {{getDate(x.timestamp)}}</span>
                   </div>
                 </div>
 
@@ -62,11 +62,11 @@
       
   
       </div>
-      <div class="type_msg">
+      <div class="type_msg" *ngIf="showMessages">
         <div class="input_msg_write">
           <input mat-input type="text" placeholder="Type a message" [(ngModel)]="message" />
-          <button class="msg_send_btn" type="button">
-            <mat-icon matSuffix (click)="sendMessage()">send</mat-icon>
+          <button class="msg_send_btn" type="button" (click)="sendAMessage()">
+            <mat-icon matSuffix >send</mat-icon>
           </button>
         </div>
       </div>
@@ -81,8 +81,8 @@
 
 <!-- user-lsit -->
 <ng-template #list>
-  <mat-list role="list" cdk-virtual-scroll-viewport itemSize="10">
-    <mat-list-item role="listitem" *ngFor="let x of users" (click)="selectUser(x)">
+  <mat-list role="list" cdk-virtual-scroll-viewport itemSize="10" *ngIf="users">
+    <mat-list-item role="listitem" *ngFor="let x of users" (click)="selectAUser(x)">
       {{x?.name}}
     </mat-list-item>
   </mat-list>
