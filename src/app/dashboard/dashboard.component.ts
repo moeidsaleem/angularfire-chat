@@ -1,4 +1,4 @@
-import {  Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { HelperService } from '../services/helper/helper.service';
 import { ApiService } from '../services/api/api.service';
 import { map, take } from 'rxjs/operators';
@@ -15,95 +15,77 @@ import { ScrollToService, ScrollToConfigOptions } from '@nicky-lenaers/ngx-scrol
   styleUrls: ['./dashboard.component.scss'],
 
 })
-export class DashboardComponent implements OnInit,OnDestroy {
+export class DashboardComponent implements OnInit {
   // @ViewChild(CdkVirtualScrollViewport) viewPort: CdkVirtualScrollViewport;
   // @ViewChild('content') content: ElementRef;
 
   title = 'chatapp';
   showFiller = false;
   users;
-  public messages :Array<any> = []
+  public messages: Array<any> = []
   temp;
-  showMessages= false;
+  showMessages = false;
 
-  constructor(private helper:HelperService, private router:Router,
+  constructor(private helper: HelperService, private router: Router,
     private _scrollToService: ScrollToService,
-     public api:ApiService) { }
-  showChat=true;
-
-  public triggerScrollTo() {
-    
-    const config: ScrollToConfigOptions = {
-      target: 'destination'
-    };
- 
-    this._scrollToService.scrollTo(config);
-  }
-
-
-
+    public api: ApiService) { }
+  showChat = true;
 
   ngOnInit() {
-this.getAllUsers()
+    this.getAllUsers()
   }
 
-/// Firebase Server Timestamp
-get timestamp() {
-  return firebase.firestore.FieldValue.serverTimestamp();
-}
 
 
-  getAllUsers(){
-    console.log('uid', localStorage.getItem('uid'))
+
+  getAllUsers() {
+    //First we will set the current User with the uid. 
     this.api.setCurrentUser(localStorage.getItem('uid'))
+    //fetch all users
     this.api.getUsers().pipe(
       map(actions => {
         return actions.map(a => {
           let data = a.payload.doc.data();
-         // const id = a.payload.doc.id;
-          //remove for conversations
-          if(this.api.currentUser && 
-            this.api.currentUser.conversations && this.api.currentUser.conversations.length > 0){
-              let r= this.api.currentUser.conversations.filter(item=> item.uid == data.uid);
-              if(r){
-                //means we already have chatted with the guy, 
-               return 
-              }
+          // const id = a.payload.doc.id;
+          let u=this.api.currentUser;
+          console.log('u', u);
+          let found;
+          if(u.conversations){
+             found =u.conversations.filter(item => item.uid == data.uid);
           }
-
-
-            return { ...data}
-        });
+           if(found){
+             return {...data}
+          }else{
+            return {...data}
+          }
+        })
       })
-    ).subscribe(data=>{
-      this.temp = data;
-      console.log('temp-data', data)
-   try{
-    let index = this.temp.findIndex(i => i.uid == this.api.currentUser.uid);
-    delete this.temp[index]
-   }catch(e){console.log(e)}
-      console.log('users==>>>>', this.temp)
-      this.users = this.temp;
+    ).subscribe(data => {
+      if(data){
+        this.temp = data;  
+        this.temp = this.temp.filter(user => user.uid !== this.api.currentUser.uid); 
+        console.log('temp', this.temp); 
+        this.users = this.temp
+        this.temp = []
+      }else{
+        this.users = []
+      };
     })
-
-
-
-
-
   }
 
 
-  
 
 
 
-  getDate(d){
-    let x=  new Date(d).toString();
+
+  getDate(d) {
+
+    let x = new Date(d).toString()
     return x;
   }
-  selectUser(user){
-    console.log('user-selected',user );
-    this.api.selectUser(user).subscribe(c=>{
+  selectUser(user) {
+    console.log('user-selected', user);
+    this.api.selectUser(user).subscribe(c => {
       this.messages = this.api.chat.messages;
       console.log('m', c)
     })
@@ -113,135 +95,119 @@ get timestamp() {
 
   message = '';
 
-sendMessage(){
-this.message = '';
-  this.api.sendMessageg(this.message).then(()=>{
-    this.message ='';
-  })
-
-}
-
-open(list){
-  this.helper.openDialog(list)
-
-}
-
-
-logoutModal(c){
-  this.helper.openDialog(c)
-}
-
-logout(){
-  this.api.clearData()
-  this.router.navigate(['/login']).then(()=> this.helper.closeModal())
-}
-
-
-closeModal(){
-  this.helper.closeModal()
-}
-
-
-
-
-
-
-
-/* FINAL CODE */
-toggleMessages(){
-  this.showMessages = !this.showMessages;
-}
-
-
-selectAUser(user){
-try{
-  this.helper.closeModal()
-} catch(e){ console.log(e)}
-console.log('Selecting a user')
-  if(this.api.currentUser.conversations == undefined){
-    this.api.currentUser.conversations = [];
-    console.log('no currentUser.conversations')
-  }
-  console.log('currentUser',this.api.currentUser)
-  let convo= [...this.api.currentUser.conversations];
-  console.log('CONVO----------------', convo);
-  let find = convo.find(item => item.uid == user.uid);
-  if(find){
-    console.log('chat found',find);
-    this.api.getChat(find.chatId).subscribe(m=>{
-      this.temp =m;
-      this.api.chat = this.temp[0];
-      console.log('values', this.api.chat);
-      this.messages = this.api.chat.messages == undefined ? [] : this.api.chat.messages
-      console.log('api.chat', this.messages)
-      this.showMessages = true;
-     setTimeout(() => {
-      this.triggerScrollTo()
-     }, 1000); 
-
-      return 
-
+  sendMessage() {
+    this.message = '';
+    this.api.sendMessageg(this.message).then(() => {
+      this.message = '';
     })
-    // this.api.chat = this.api.getCurrentChat(user.chatId)
-  }else{
-    console.log('adding-a-new-chat-since not found');
-    this.api.addNewChat().then(()=>{
-      this.api.addConvoToUser(user.uid, this.api.currentUser).then(()=>{
-        this.api.addConvoToUser(this.api.currentUser.uid, user).then(()=>{
 
-        })
-        // this.api.getCurrentUser()
+  }
 
+  open(list) {
+    this.helper.openDialog(list)
+
+  }
+
+
+  logoutModal(c) {
+    this.helper.openDialog(c)
+  }
+
+  logout() {
+    this.api.clearData()
+    this.router.navigate(['/login']).then(() => this.helper.closeModal())
+  }
+
+
+  closeModal() {
+    this.helper.closeModal()
+  }
+
+
+
+
+
+
+
+  /* FINAL CODE */
+  toggleMessages() {
+    this.showMessages = !this.showMessages;
+  }
+
+
+  async selectAUser(user) {
+    try {
+      this.helper.closeModal()
+    } catch (e) { console.log(e) }
+
+    if (this.api.currentUser.conversations == undefined) {
+      //means user has no conversations.
+      this.api.currentUser.conversations = [];
+    }
+    let convo = [...this.api.currentUser.conversations]; //spread operators for ensuring type Array.
+    let find = convo.find(item => item.uid == user.uid); // Check If Its the same person who user has talked to before,
+    if (find) { // Conversation Found 
+      this.api.getChat(find.chatId).subscribe(m => {
+        this.temp = m;
+        // set the service values
+        this.api.chat = this.temp[0];
+        this.messages = this.api.chat.messages == undefined ? [] : this.api.chat.messages
+        this.showMessages = true;
+        setTimeout(() => {
+          this.triggerScrollTo() //scroll to bottom
+        }, 1000);
+        return
       })
+    } else {
+      /* User is talking to someone for the very first time. */
+      this.api.addNewChat().then(async () => { // This will create a chatId Instance. 
+        // Now we will let both the users know of the following chatId reference
+        let convo = [];
+      let b = await this.api.addConvo(user);
+      })
+
+    }
+  }
+
+
+
+  sendAMessage() {
+    // If message string is empty
+    if (this.message == '') {
+      alert('Enter message');
+      return
+    }
+    //set the message object 
+    let msg = {
+      senderId: this.api.currentUser.uid,
+      senderName: this.api.currentUser.name,
+      timestamp: new Date(),
+      content: this.message
+    };
+    //empty message
+    this.message = '';
+    //update 
+    this.messages.push(msg);
+    console.log('list', this.messages);
+    this.api.pushNewMessage(this.messages).then(() => {
+      console.log('sent')
     })
-   
   }
-}
 
 
-
-sendAMessage(){
-  console.log('ye chala sendamessage', this.message)
-  if(this.message == ''){
-    alert('Enter message');
-    return
+  public triggerScrollTo() {
+    const config: ScrollToConfigOptions = {
+      target: 'destination'
+    };
+    this._scrollToService.scrollTo(config);
   }
 
 
 
-  //push to local messages 
-  let msg={
-    senderId: this.api.currentUser.uid,
-    senderName: this.api.currentUser.name,
-    timestamp: new Date(),
-    content: this.message
-  };
-
-  //empty message
-  this.message = '';
- 
-  //update 
-  this.messages.push(msg);
-  console.log('list', this.messages);
-
-  this.api.pushNewMessage(this.messages).then(()=>{
-    console.log('sent')
-
-  })
-
-
-  
-}
-
-
-ngOnDestroy(){
-  this.api.currentUser = null;
-  this.users = null;
-  // this.api.currentUser.name = '';
-}
-
-
-
+  // Firebase Server Timestamp
+  get timestamp() {
+    return firebase.firestore.FieldValue.serverTimestamp();
+  }
 
 
 

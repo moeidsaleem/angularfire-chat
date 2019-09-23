@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AuthService } from '../auth/auth.service';
-import { map, take } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { map, take,  } from 'rxjs/operators';
+import { Observable, forkJoin } from 'rxjs';
 
 export interface Chat{
   chatId:any,
@@ -203,6 +203,51 @@ sendMessageg(message){
     })
   }
 
+
+
+  async addConvo(user){
+    //data to be added.
+    let userMsg ={name:user.name, uid: user.uid,chatId: this.chat.chatId}
+    let otherMsg={name:this.currentUser.name, uid: this.currentUser.uid, chatId:this.chat.chatId}
+    //first set both references.  
+    let myReference = this.afs.doc('users/'+ this.currentUser.uid);
+    let otherReference = this.afs.doc('users/'+ user.uid);
+
+    // Updating my profile 
+  myReference.get().subscribe(d=>{
+          let c=d.data()
+          console.log('c',c);
+          if(!c.conversations){
+            c.conversations = [];
+          }
+          c.conversations.push(userMsg);
+         return myReference.update({conversations: c.conversations})
+      })
+      // Updating Other User Profile
+      otherReference.get().subscribe(d=>{
+        let c=d.data()
+        console.log('c',c);
+        if(!c.conversations){
+          c.conversations = [];
+        }
+        c.conversations.push(otherMsg);
+       return otherReference.update({conversations: c.conversations})
+    })
+
+  // otherReference.get().subscribe(d=>{
+  //     let c=d.data().conversations.push({name:this.currentUser.name, uid: this.currentUser.uid, chatId:this.chat.chatId});
+  //    return myReference.update({conversations: c})
+  // })
+
+
+
+
+  }
+
+
+  convoMaker(user){
+
+  }
   addConvoToUser(uid, user:User){
     let convo= [];
     if(!user.uid){

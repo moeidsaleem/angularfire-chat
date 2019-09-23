@@ -60,7 +60,8 @@ export class SignupComponent implements OnInit {
       this.api.createUser(data.user.uid, {
         name: this.nameFormControl.value, 
         email: this.emailFormControl.value,
-        uid: data.user.uid
+        uid: data.user.uid,
+        conversations:[]
       }).then(()=>{
         localStorage.setItem('uid', data.user.uid)
         this.router.navigate(['/dashboard']).then(()=>{
