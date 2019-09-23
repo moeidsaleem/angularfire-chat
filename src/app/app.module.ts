@@ -24,6 +24,9 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 
+import { ScrollToModule } from '@nicky-lenaers/ngx-scroll-to';
+
+
 
 //firebase
 import { AngularFireModule } from '@angular/fire';
@@ -46,7 +49,9 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
     MatToolbarModule,MatIconModule,MatSidenavModule,MatInputModule,MatButtonModule,ScrollingModule,MatSnackBarModule,
     MatListModule, MatDialogModule,
     AngularFireModule.initializeApp(environment.firebase),
-    AngularFireAuthModule,AngularFirestoreModule
+    AngularFireAuthModule,AngularFirestoreModule,
+    ScrollToModule.forRoot()
+
   ],
   providers: [],
   bootstrap: [AppComponent]

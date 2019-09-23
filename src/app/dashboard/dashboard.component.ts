@@ -1,19 +1,24 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {  Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { HelperService } from '../services/helper/helper.service';
 import { ApiService } from '../services/api/api.service';
 import { map, take } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import * as firebase from 'firebase'
-// import undefined = require('firebase/empty-import');
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import { ScrollToService, ScrollToConfigOptions } from '@nicky-lenaers/ngx-scroll-to';
 
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  styleUrls: ['./dashboard.component.scss'],
+
 })
 export class DashboardComponent implements OnInit,OnDestroy {
+  // @ViewChild(CdkVirtualScrollViewport) viewPort: CdkVirtualScrollViewport;
+  // @ViewChild('content') content: ElementRef;
+
   title = 'chatapp';
   showFiller = false;
   users;
@@ -22,10 +27,23 @@ export class DashboardComponent implements OnInit,OnDestroy {
   showMessages= false;
 
   constructor(private helper:HelperService, private router:Router,
+    private _scrollToService: ScrollToService,
      public api:ApiService) { }
   showChat=true;
-  ngOnInit() {
 
+  public triggerScrollTo() {
+    
+    const config: ScrollToConfigOptions = {
+      target: 'destination'
+    };
+ 
+    this._scrollToService.scrollTo(config);
+  }
+
+
+
+
+  ngOnInit() {
 this.getAllUsers()
   }
 
@@ -33,6 +51,7 @@ this.getAllUsers()
 get timestamp() {
   return firebase.firestore.FieldValue.serverTimestamp();
 }
+
 
   getAllUsers(){
     console.log('uid', localStorage.getItem('uid'))
@@ -74,10 +93,12 @@ get timestamp() {
   }
 
 
+  
+
+
 
   getDate(d){
     let x=  new Date(d).toString();
-    console.log('x')
     return x;
   }
   selectUser(user){
@@ -154,6 +175,9 @@ console.log('Selecting a user')
       this.messages = this.api.chat.messages == undefined ? [] : this.api.chat.messages
       console.log('api.chat', this.messages)
       this.showMessages = true;
+     setTimeout(() => {
+      this.triggerScrollTo()
+     }, 1000); 
 
       return 
 
@@ -174,12 +198,16 @@ console.log('Selecting a user')
   }
 }
 
+
+
 sendAMessage(){
   console.log('ye chala sendamessage', this.message)
   if(this.message == ''){
     alert('Enter message');
     return
   }
+
+
 
   //push to local messages 
   let msg={
@@ -211,5 +239,11 @@ ngOnDestroy(){
   this.users = null;
   // this.api.currentUser.name = '';
 }
+
+
+
+
+
+
 
 }

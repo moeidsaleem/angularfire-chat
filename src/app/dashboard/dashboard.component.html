@@ -31,9 +31,13 @@
   </mat-drawer>
 
   <div class="example-sidenav-content">
-    <div class="mesgs"  cdk-virtual-scroll-viewport itemSize="50">
-      <div class="msg_history" *ngIf="showMessages">
-        <div *ngFor="let x of messages">
+    <!-- <button mat-button   (click)="triggerScrollTo()"> SCROLL BOttom</button> -->
+    <div  class="mesgs"  id="container">
+
+        <cdk-virtual-scroll-viewport  itemSize="40"  class="msg_history " *ngIf="showMessages" 
+        >
+
+        <div *cdkVirtualFor="let x of messages; let i = index" >
             <div class="incoming_msg" *ngIf="x.senderId !== api.currentUser.uid">
                 <div class="incoming_msg_img">
                   <img
@@ -44,7 +48,7 @@
                 <div class="received_msg">
                   <div class="received_withd_msg">
                     <p>{{x.content}}</p>
-                    <span class="time_date"> {{getDate(x.time)}}</span>
+                    <span class="time_date" id="{{i == messages.length-2 ? 'destination':'abc'}}"> {{getDate(x.timestamp)}}</span>
                   </div>
                 </div>
               </div>
@@ -52,17 +56,14 @@
               <div class="outgoing_msg"  *ngIf="x.senderId == api.currentUser.uid">
                   <div class="sent_msg">
                     <p>{{x.content}}</p>
-                    <span class="time_date"> {{getDate(x.timestamp)}}</span>
+                    <span class="time_date" id="{{i == messages.length-2 ? 'destination':'abc'}}"> {{getDate(x.timestamp)}}</span>
                   </div>
                 </div>
 
         </div>
-     
-          
-      
-  
-      </div>
-      <div class="type_msg" *ngIf="showMessages">
+        </cdk-virtual-scroll-viewport>
+
+      <div class="type_msg" *ngIf="showMessages"  >
         <div class="input_msg_write">
           <input mat-input type="text" placeholder="Type a message" [(ngModel)]="message" />
           <button class="msg_send_btn" type="button" (click)="sendAMessage()">
