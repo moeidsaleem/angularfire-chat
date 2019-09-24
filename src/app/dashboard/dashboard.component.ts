@@ -49,15 +49,15 @@ export class DashboardComponent implements OnInit {
           // const id = a.payload.doc.id;
           let u=this.api.currentUser;
           console.log('u', u);
-          let found;
-          if(u.conversations){
-             found =u.conversations.filter(item => item.uid == data.uid);
-          }
+          if(this.api.currentUser.conversations){
+           let found =u.conversations.filter(item => item.uid == data.uid);
            if(found){
-             return {...data}
+             console.log('means that user must belong to it.')
+           }
           }else{
-            return {...data}
+            this.api.currentUser.conversations = [];
           }
+           
         })
       })
     ).subscribe(data => {
