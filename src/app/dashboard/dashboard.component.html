@@ -48,7 +48,7 @@
                 <div class="received_msg">
                   <div class="received_withd_msg">
                     <p>{{x.content}}</p>
-                    <span class="time_date" id="{{i == messages.length - 3 ?'destination':'abc'}}"> {{getDate(x.timestamp)}} {{'index: '+i}}</span>
+                    <span class="time_date" id="{{i == messages.length - 3 ?'destination':'abc'}}"> {{x.timestamp.toDate() | date: 'dd MMM hh:mm'}}</span>
                   </div>
                 </div>
               </div>
@@ -65,7 +65,7 @@
 
       <div class="type_msg" *ngIf="showMessages"  >
         <div class="input_msg_write">
-          <input mat-input type="text" placeholder="Type a message" [(ngModel)]="message" />
+          <input mat-input type="text" placeholder="Type a message" [(ngModel)]="message" (keydown.enter)="sendAMessage()" />
           <button class="msg_send_btn" type="button" (click)="sendAMessage()" (keydown.enter)="sendAMessage()">
             <mat-icon matSuffix >send</mat-icon>
           </button>

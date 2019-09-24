@@ -19,12 +19,14 @@ export class DashboardComponent implements OnInit {
   // @ViewChild(CdkVirtualScrollViewport) viewPort: CdkVirtualScrollViewport;
   // @ViewChild('content') content: ElementRef;
 
-  title = 'chatapp';
-  showFiller = false;
-  users;
+  title:string = 'chatapp';
+  showFiller:boolean = false;
+  users:any;
   public messages: Array<any> = []
-  temp;
+  temp:any;
   showMessages = false;
+  message:string = '';
+
 
   constructor(private helper: HelperService, private router: Router,
     private _scrollToService: ScrollToService,
@@ -46,25 +48,21 @@ export class DashboardComponent implements OnInit {
       map(actions => {
         return actions.map(a => {
           let data = a.payload.doc.data();
-          // const id = a.payload.doc.id;
-          let u=this.api.currentUser;
-          console.log('u', u);
-          if(this.api.currentUser.conversations){
-           let found =u.conversations.filter(item => item.uid == data.uid);
-           if(found){
-             console.log('means that user must belong to it.')
-           }
-          }else{
+         let id = a.payload.doc.id
+          if(!this.api.currentUser.conversations){
             this.api.currentUser.conversations = [];
           }
-           
+           let found =this.api.currentUser.conversations.filter(item => item.uid == id);
+           if(found){
+             console.log('means that user must belong to it.')
+             return {...data}
+           }
+          
         })
       })
     ).subscribe(data => {
       if(data){
         this.temp = data;  
-        this.temp = this.temp.filter(user => user.uid !== this.api.currentUser.uid); 
-        console.log('temp', this.temp); 
         this.users = this.temp
         this.temp = []
       }else{
@@ -77,12 +75,6 @@ export class DashboardComponent implements OnInit {
 
 
 
-
-  getDate(d) {
-
-    let x = new Date(d).toString()
-    return x;
-  }
   selectUser(user) {
     console.log('user-selected', user);
     this.api.selectUser(user).subscribe(c => {
@@ -93,7 +85,6 @@ export class DashboardComponent implements OnInit {
 
 
 
-  message = '';
 
   sendMessage() {
     this.message = '';
