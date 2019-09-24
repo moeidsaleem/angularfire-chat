@@ -1,3 +1,5 @@
+
+<!-- Topbar  -->
 <mat-toolbar color="primary">
   <button mat-icon-button (click)="drawer.toggle()">
     <mat-icon matSuffix>menu</mat-icon>
@@ -11,88 +13,132 @@
   </button>
 </mat-toolbar>
 
+<!-- Conversations sidebar - start -->
 <mat-drawer-container class="example-container" autosize>
   <mat-drawer #drawer class="example-sidenav" mode="side" opened>
     <mat-form-field>
-      <input matInput placeholder="Search Conversations" value="" />
+      <input matInput placeholder="Search Conversations"  
+      [(ngModel)]="userFilter.name"
+      />
     </mat-form-field>
 
-    <mat-list cdk-virtual-scroll-viewport itemSize="50" *ngIf="api.currentUser && api.currentUser.conversations">
-      <mat-list-item *ngFor="let x of api.currentUser.conversations" (click)="selectAUser(x)">
+    <mat-list
+      cdk-virtual-scroll-viewport
+      itemSize="50"
+      *ngIf="api.currentUser && api.currentUser.conversations"
+    >
+      <mat-list-item
+        *ngFor="let x of api.currentUser.conversations | filterBy: userFilter"
+        (click)="selectAUser(x)"
+      >
         <mat-icon matListIcon>folder</mat-icon>
-        <h3 matLine class="text-primary">{{x?.name}}</h3>
+        <h3 matLine class="text-primary">{{ x?.name }}</h3>
         <p matLine>
           <span class="small text-muted"> New Message </span><br />
-          <span class="demo-2 text-muted small"> {{x.timestamp?.toDate() | date:'dd MMM hh:mm'}}</span>
+          <span class="demo-2 text-muted small">
+            {{ x.timestamp?.toDate() | date: "dd MMM hh:mm" }}</span
+          >
         </p>
       </mat-list-item>
-   
     </mat-list>
   </mat-drawer>
+  <!-- Conversations sidebar - ends -->
 
+
+
+
+  <!-- Chat Screen Main Content - start -->
   <div class="example-sidenav-content">
-    <!-- <button mat-button   (click)="triggerScrollTo()"> SCROLL BOttom</button> -->
-    <div  class="mesgs"  id="container">
-
-        <cdk-virtual-scroll-viewport  itemSize="40"  class="msg_history " *ngIf="showMessages" 
-        >
-
-        <div *cdkVirtualFor="let x of messages; let i = index" >
-            <div class="incoming_msg" *ngIf="x.senderId !== api.currentUser.uid">
-                <div class="incoming_msg_img">
-                  <img
-                    src="https://ptetutorials.com/images/user-profile.png"
-                    alt="sunil"
-                  />
-                </div>
-                <div class="received_msg">
-                  <div class="received_withd_msg">
-                    <p>{{x.content}}</p>
-                    <span class="time_date" id="{{i == messages.length - 3 ?'destination':'abc'}}"> {{x.timestamp.toDate() | date: 'dd MMM hh:mm'}}</span>
-                  </div>
-                </div>
+    <div class="mesgs" id="container">
+      <cdk-virtual-scroll-viewport
+        itemSize="40"
+        class="msg_history "
+        *ngIf="showMessages"
+      >
+        <div *cdkVirtualFor="let x of messages; let i = index">
+          <div class="incoming_msg" *ngIf="x.senderId !== api.currentUser.uid">
+            <div class="incoming_msg_img">
+              <img
+                src="https://ptetutorials.com/images/user-profile.png"
+                alt="sunil"
+              />
+            </div>
+            <div class="received_msg">
+              <div class="received_withd_msg">
+                <p>{{ x.content }}</p>
+                <span
+                  class="time_date"
+                  id="{{ i == messages.length - 3 ? 'destination' : 'abc' }}"
+                >
+                  {{ x.timestamp.toDate() | date: "dd MMM hh:mm" }}</span
+                >
               </div>
+            </div>
+          </div>
 
-              <div class="outgoing_msg"  *ngIf="x.senderId == api.currentUser.uid">
-                  <div class="sent_msg">
-                    <p>{{x.content}}</p>
-                    <span class="time_date" id="{{i == messages.length - 3 ? 'destination':'abc'}}"> {{x.timestamp.toDate() | date: 'dd MMM hh:mm'}}</span>
-                  </div>
-                </div>
-
+          <div class="outgoing_msg" *ngIf="x.senderId == api.currentUser.uid">
+            <div class="sent_msg">
+              <p>{{ x.content }}</p>
+              <span
+                class="time_date"
+                id="{{ i == messages.length - 3 ? 'destination' : 'abc' }}"
+              >
+                {{ x.timestamp.toDate() | date: "dd MMM hh:mm" }}</span
+              >
+            </div>
+          </div>
         </div>
-        </cdk-virtual-scroll-viewport>
+      </cdk-virtual-scroll-viewport>
 
-      <div class="type_msg" *ngIf="showMessages"  >
+      <div class="type_msg" *ngIf="showMessages">
         <div class="input_msg_write">
-          <input mat-input type="text" placeholder="Type a message" [(ngModel)]="message" (keydown.enter)="sendAMessage()" />
-          <button class="msg_send_btn" type="button" (click)="sendAMessage()" (keydown.enter)="sendAMessage()">
-            <mat-icon matSuffix >send</mat-icon>
+          <input
+            mat-input
+            type="text"
+            placeholder="Type a message"
+            [(ngModel)]="message"
+            (keydown.enter)="sendMessage()"
+          />
+          <button
+            class="msg_send_btn"
+            type="button"
+            (click)="sendMessage()"
+            (keydown.enter)="sendMessage()"
+          >
+            <mat-icon matSuffix>send</mat-icon>
           </button>
         </div>
       </div>
     </div>
   </div>
 </mat-drawer-container>
+<!-- Conversations sidebar - ends -->
 
 
-
-
-
-
-<!-- user-lsit -->
+<!-- user-list template - start -->
 <ng-template #list>
   <mat-list role="list" cdk-virtual-scroll-viewport itemSize="10" *ngIf="users">
-    <mat-list-item role="listitem" *ngFor="let x of users" (click)="selectAUser(x)">
-      {{x?.name}}
+    <mat-list-item
+      role="listitem"
+      *ngFor="let x of users "
+      (click)="selectAUser(x)">
+      <div>
+      {{ x?.name }}
+    </div>
     </mat-list-item>
   </mat-list>
 </ng-template>
+<!-- user-list template - ends -->
 
 
+<!-- logout-content - start -->
 <ng-template #logoutContent>
-  Are you sure you want to Log out? <br> <br>
-  <button mat-button  mat-raised-button color="warn" (click)="logout()"> LOGOUT </button>
-  
-  <button mat-button (click)="closeModal()"> cancel </button>
+  Are you sure you want to Log out? <br />
+  <br />
+  <button mat-button mat-raised-button color="warn" (click)="logout()">
+    LOGOUT
+  </button>
+  <button mat-button (click)="closeModal()">cancel</button>
 </ng-template>
+<!-- logout-content - start -->
+

@@ -25,6 +25,7 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 
 import { ScrollToModule } from '@nicky-lenaers/ngx-scroll-to';
+import { FilterPipeModule } from 'ngx-filter-pipe';
 
 
 
@@ -50,7 +51,8 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
     MatListModule, MatDialogModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,AngularFirestoreModule,
-    ScrollToModule.forRoot()
+    ScrollToModule.forRoot(),
+    FilterPipeModule
 
   ],
   providers: [],

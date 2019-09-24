@@ -1,11 +1,9 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { HelperService } from '../services/helper/helper.service';
 import { ApiService } from '../services/api/api.service';
-import { map, take } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import * as firebase from 'firebase'
-import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { ScrollToService, ScrollToConfigOptions } from '@nicky-lenaers/ngx-scroll-to';
 
 
@@ -16,27 +14,29 @@ import { ScrollToService, ScrollToConfigOptions } from '@nicky-lenaers/ngx-scrol
 
 })
 export class DashboardComponent implements OnInit {
-  // @ViewChild(CdkVirtualScrollViewport) viewPort: CdkVirtualScrollViewport;
-  // @ViewChild('content') content: ElementRef;
-
-  title:string = 'chatapp';
-  showFiller:boolean = false;
-  users:any;
-  public messages: Array<any> = []
-  temp:any;
-  showMessages = false;
-  message:string = '';
 
 
-  constructor(private helper: HelperService, private router: Router,
+  title: string = 'chatapp';
+
+  showFiller: boolean = false; //sidebar -toggler
+  users: Array<any>; // users list.
+  public messages: Array<any> = [] // messages array/
+  temp: any; // for handling temporory data from observables.
+  showMessages = false; //Toggle to select a conversation.
+  message: string = ''; // the  message to be sent
+
+  userFilter ={name:''};
+
+  constructor(
+    private helper: HelperService,
+     private router: Router,
     private _scrollToService: ScrollToService,
     public api: ApiService) { }
   showChat = true;
 
   ngOnInit() {
-    this.getAllUsers()
+    this.getAllUsers() // start by populating the users list.
   }
-
 
 
 
@@ -48,29 +48,26 @@ export class DashboardComponent implements OnInit {
       map(actions => {
         return actions.map(a => {
           let data = a.payload.doc.data();
-         let id = a.payload.doc.id
-          if(!this.api.currentUser.conversations){
-            this.api.currentUser.conversations = [];
-          }
-           let found =this.api.currentUser.conversations.filter(item => item.uid == id);
-           if(found){
-             console.log('means that user must belong to it.')
-             return {...data}
-           }
-          
+          let id = a.payload.doc.id;
+          return {...data}
+
         })
       })
     ).subscribe(data => {
-      if(data){
-        this.temp = data;  
-        this.users = this.temp
-        this.temp = []
-      }else{
-        this.users = []
-      };
-    })
-  }
+      console.log('data', data)
+        this.users = data.filter((item)=>{
+          let find = this.api.currentUser.conversations.find(el => el.uid == item.uid);
+          if(!find){
+            return item;
+          }
+            
+        })
+        console.log('users', this.users);
 
+        
+  })
+
+}
 
 
 
@@ -85,14 +82,6 @@ export class DashboardComponent implements OnInit {
 
 
 
-
-  sendMessage() {
-    this.message = '';
-    this.api.sendMessageg(this.message).then(() => {
-      this.message = '';
-    })
-
-  }
 
   open(list) {
     this.helper.openDialog(list)
@@ -154,7 +143,7 @@ export class DashboardComponent implements OnInit {
       this.api.addNewChat().then(async () => { // This will create a chatId Instance. 
         // Now we will let both the users know of the following chatId reference
         let convo = [];
-      let b = await this.api.addConvo(user);
+        let b = await this.api.addConvo(user);
       })
 
     }
@@ -162,7 +151,8 @@ export class DashboardComponent implements OnInit {
 
 
 
-  sendAMessage() {
+  /* Sending a  Message */
+  sendMessage() {
     // If message string is empty
     if (this.message == '') {
       alert('Enter message');
@@ -181,11 +171,13 @@ export class DashboardComponent implements OnInit {
     this.messages.push(msg);
     console.log('list', this.messages);
     this.api.pushNewMessage(this.messages).then(() => {
-      console.log('sent')
+      console.log('sent');
     })
   }
 
 
+
+  //Scroll to the bottom 
   public triggerScrollTo() {
     const config: ScrollToConfigOptions = {
       target: 'destination'
