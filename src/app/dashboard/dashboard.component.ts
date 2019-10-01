@@ -43,16 +43,13 @@ export class DashboardComponent implements OnInit {
 
   // Run at the start to populate the list.
   getAllUsers() {
-    //First we will set the current User with the uid. 
-    this.api.setCurrentUser(localStorage.getItem('uid'))
-    //fetch all users
+    this.api.setCurrentUser(localStorage.getItem('uid')) //setting up the uid in the service for easy access.
     this.api.getUsers().pipe(
       map(actions => {
         return actions.map(a => {
           let data = a.payload.doc.data();
           let id = a.payload.doc.id;
           return {...data}
-
         })
       })
     ).subscribe(data => {
@@ -61,14 +58,9 @@ export class DashboardComponent implements OnInit {
           let find = this.api.currentUser.conversations.find(el => el.uid == item.uid);
           if(!find){
             return item;
-          }
-            
-        })
-        console.log('users', this.users);
-
-        
+          }     
+        })        
   })
-
 }
 
 
@@ -104,7 +96,7 @@ export class DashboardComponent implements OnInit {
   }
 
 
-  //Selecting A User from the list (onclick)
+  //Selecting A User from the list (onclick)  to talk
   async selectAUser(user) {
     try {
       this.helper.closeModal()
@@ -131,9 +123,8 @@ export class DashboardComponent implements OnInit {
     } else {
       /* User is talking to someone for the very first time. */
       this.api.addNewChat().then(async () => { // This will create a chatId Instance. 
-        // Now we will let both the users know of the following chatId reference
-        let convo = [];
-        let b = await this.api.addConvo(user);
+       // Now we will let both the users know of the following chatId reference
+        let b = await this.api.addConvo(user); //passing other user info
       })
 
     }

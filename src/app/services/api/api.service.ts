@@ -87,62 +87,6 @@ export class ApiService {
 
 
 
- public selectUser(user) {
-    // user tapped. 
-    if(this.currentUser){ //if we
-      if(!this.currentUser.conversations){
-        this.currentUser.conversations = []
-      }
-      console.log('finding....')
-    let find =this.currentUser.conversations.find(item => item.uid == user.uid);
-    if (find) {
-      //means that already have talked to the user before..
-      console.log('found it', find);
-     return  this.getChat(find.chatId);
-    } else if (!find) {
-      console.log('not-found')
-      //first time talking to the user 
-      let chatId = this.afs.createId();
-      this.afs.doc('conversations/' + chatId).set({
-        timestamp: new Date(),
-        senderId: this.currentUser.uid,
-        senderName: this.currentUser.name,
-        chatId: chatId,
-        messages: []
-      }).then((data) => {
-        this.currentUser.conversations.push({
-          uid: user.uid,
-          name: user.name,
-          chatId: chatId,
-          timestamp: new Date()
-        })
-        this.afs.doc('users/' + this.currentUser.uid).update(this.currentUser);
-        //Also updating other user profile
-        console.log('userId',user.uid)
-        this.afs.doc('users/' + user.uid).valueChanges().subscribe(d => {
-          this.otherUser = d;
-          console.log('other-user', d)
-          if(this.otherUser){
-
-          }
-            this.otherUser.conversations.push({
-              timestamp: new Date(),
-              uid: this.currentUser.uid,
-              name: this.currentUser.name,
-              chatId: chatId
-            });
-            this.afs.doc('users/' + user.uid).update(this.otherUser);
-        });
-      })
-    }      
-  }else{
-    console.log('no current user data.')
-  }
-  }
-
-
-  
-
 
 
 
@@ -172,7 +116,6 @@ export class ApiService {
     //first set both references.  
     let myReference = this.afs.doc('users/'+ this.currentUser.uid);
     let otherReference = this.afs.doc('users/'+ user.uid);
-
     // Updating my profile 
   myReference.get().subscribe(d=>{
           let c=d.data()
@@ -196,25 +139,6 @@ export class ApiService {
 
   }
 
-  addConvoToUser(uid, user:User){
-    let convo= [];
-    if(!user.uid){
-      console.log('addconvo-no user id found', user)
-      return
-    }
-    let c ={
-      name: user.name,
-      uid: user.uid,
-      chatId: this.chat.chatId
-    }
-    // user.conversations.push(c)
-if(!user.conversations || user.conversations.length <=0){
-  user.conversations =[];
-}
-user.conversations.push(c);
-return this.afs.doc('users/'+uid).update({conversations:user.conversations})
-  }
-
   addNewChat(){
     const chatId =this.afs.createId();
       return this.afs.doc('conversations/'+ chatId).set({
@@ -226,7 +150,6 @@ return this.afs.doc('users/'+uid).update({conversations:user.conversations})
            messages:[]
         }
       })
-
   }
 
   pushNewMessage(list){
