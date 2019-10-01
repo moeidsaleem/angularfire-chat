@@ -41,13 +41,10 @@ export class LoginComponent implements OnInit {
 
 
   // login user  
-    console.log('email', this.emailFormControl.value)
-    console.log('pass', this.passwordFormControl.value)
     this.auth.login(this.emailFormControl.value , this.passwordFormControl.value).then(data=>{
       console.log('data', data)
       // user login 
        this.router.navigate(['/dashboard']).then(()=>{
-
          this.api.setCurrentUser(data.user.uid)
         //  console.log(this.api.currentUser)
        })

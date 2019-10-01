@@ -40,6 +40,8 @@ export class DashboardComponent implements OnInit {
 
 
 
+
+  // Run at the start to populate the list.
   getAllUsers() {
     //First we will set the current User with the uid. 
     this.api.setCurrentUser(localStorage.getItem('uid'))
@@ -70,19 +72,6 @@ export class DashboardComponent implements OnInit {
 }
 
 
-
-
-  selectUser(user) {
-    console.log('user-selected', user);
-    this.api.selectUser(user).subscribe(c => {
-      this.messages = this.api.chat.messages;
-      console.log('m', c)
-    })
-  }
-
-
-
-
   open(list) {
     this.helper.openDialog(list)
 
@@ -109,12 +98,13 @@ export class DashboardComponent implements OnInit {
 
 
 
-  /* FINAL CODE */
+  /* Main Code Logic */
   toggleMessages() {
     this.showMessages = !this.showMessages;
   }
 
 
+  //Selecting A User from the list (onclick)
   async selectAUser(user) {
     try {
       this.helper.closeModal()
@@ -149,8 +139,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-
-
   /* Sending a  Message */
   sendMessage() {
     // If message string is empty
@@ -175,8 +163,6 @@ export class DashboardComponent implements OnInit {
     })
   }
 
-
-
   //Scroll to the bottom 
   public triggerScrollTo() {
     const config: ScrollToConfigOptions = {
@@ -184,8 +170,6 @@ export class DashboardComponent implements OnInit {
     };
     this._scrollToService.scrollTo(config);
   }
-
-
 
   // Firebase Server Timestamp
   get timestamp() {

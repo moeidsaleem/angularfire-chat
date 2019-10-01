@@ -89,7 +89,7 @@ export class ApiService {
 
  public selectUser(user) {
     // user tapped. 
-    if(this.currentUser){
+    if(this.currentUser){ //if we
       if(!this.currentUser.conversations){
         this.currentUser.conversations = []
       }
@@ -99,10 +99,6 @@ export class ApiService {
       //means that already have talked to the user before..
       console.log('found it', find);
      return  this.getChat(find.chatId);
-
-
-
-
     } else if (!find) {
       console.log('not-found')
       //first time talking to the user 
@@ -138,55 +134,14 @@ export class ApiService {
             this.afs.doc('users/' + user.uid).update(this.otherUser);
         });
       })
-    }
-
-         
+    }      
   }else{
-    console.log('c')
+    console.log('no current user data.')
   }
-
-
   }
 
 
   
-
-
-  getChat(chatId){
-   return this.afs.collection('conversations', ref=> ref.where('chatId','==',chatId)).valueChanges()
-  }
-
-
-sendMessageg(message){
-  console.log('msg', message);
-  console.log('chat', this.chat);
-  if(this.chat.chatId){
-    console.log('chat is selected');
-    this.chat.messages.push(message);
-    console.log('send-chat', this.chat)
-    return this.afs.doc('conversations/'+ this.chat.chatId).update(this.chat)
-
-  }else{
-    console.log('Please select a Chat');
-  }
-}
-
-
-  sendMessage(message) {
-      this.chat.messages.push({
-        senderId: this.currentUser.uid,
-        content: message,
-        senderName: this.currentUser.name,
-        timestamp: new Date()
-      });
-      this.afs.doc('conversations/' + this.conversationId).update({ messages: this.chat.messages });
-
-    }
-  
-
-  pushMessage(msg) {
-
-  }
 
 
 
@@ -194,6 +149,11 @@ sendMessageg(message){
 
 
   /* FINAL CODE */
+
+
+  getChat(chatId){
+    return this.afs.collection('conversations', ref=> ref.where('chatId','==',chatId)).valueChanges()
+   }
 
 
   refreshCurrentUser(){
@@ -234,20 +194,8 @@ sendMessageg(message){
        return otherReference.update({conversations: c.conversations})
     })
 
-  // otherReference.get().subscribe(d=>{
-  //     let c=d.data().conversations.push({name:this.currentUser.name, uid: this.currentUser.uid, chatId:this.chat.chatId});
-  //    return myReference.update({conversations: c})
-  // })
-
-
-
-
   }
 
-
-  convoMaker(user){
-
-  }
   addConvoToUser(uid, user:User){
     let convo= [];
     if(!user.uid){
@@ -259,23 +207,16 @@ sendMessageg(message){
       uid: user.uid,
       chatId: this.chat.chatId
     }
-
-
     // user.conversations.push(c)
 if(!user.conversations || user.conversations.length <=0){
   user.conversations =[];
 }
-
 user.conversations.push(c);
-
 return this.afs.doc('users/'+uid).update({conversations:user.conversations})
   }
 
-
   addNewChat(){
     const chatId =this.afs.createId();
-
-    console.log('chatID----', chatId)
       return this.afs.doc('conversations/'+ chatId).set({
         chatId: chatId,
         messages:[]
@@ -285,7 +226,7 @@ return this.afs.doc('users/'+uid).update({conversations:user.conversations})
            messages:[]
         }
       })
- 
+
   }
 
   pushNewMessage(list){
@@ -296,14 +237,14 @@ return this.afs.doc('users/'+uid).update({conversations:user.conversations})
   }
 
 
-  updateChat(chat){
-    return this.afs.doc('conversations/' + chat.chatId).update(chat)
-  }
+  // updateChat(chat){
+  //   return this.afs.doc('conversations/' + chat.chatId).update(chat)
+  // }
 
-  getCurrentChat(chatId){
-    console.log('get')
-    return this.afs.doc('conversations/'+chatId).valueChanges()
-  }
+  // getCurrentChat(chatId){
+  //   console.log('get')
+  //   return this.afs.doc('conversations/'+chatId).valueChanges()
+  // }
 
 
   clearData(){
