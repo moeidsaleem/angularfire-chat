@@ -29,7 +29,7 @@
     >
       <mat-list-item
         *ngFor="let x of api.currentUser.conversations | filterBy: userFilter"
-        (click)="selectAUser(x)"
+        (click)="selectUser(x)"
       >
         <mat-icon matListIcon>folder</mat-icon>
         <h3 matLine class="text-primary">{{ x?.name }}</h3>
@@ -121,7 +121,7 @@
     <mat-list-item
       role="listitem"
       *ngFor="let x of users "
-      (click)="selectAUser(x)">
+      (click)="selectUser(x)">
       <div>
       {{ x?.name }}
     </div>

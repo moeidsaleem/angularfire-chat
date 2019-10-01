@@ -97,7 +97,7 @@ export class DashboardComponent implements OnInit {
 
 
   //Selecting A User from the list (onclick)  to talk
-  async selectAUser(user) {
+  async selectUser(user) {
     try {
       this.helper.closeModal()
     } catch (e) { console.log(e) }
